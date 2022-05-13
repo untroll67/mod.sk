@@ -1,0 +1,134 @@
+Options:
+	Nom: serveur.fr
+	perm: &cCommande inconnue.
+	Glass1: White Stained Glass Pane
+	Glass2: Light Gray Stained Glass Pane
+
+on join:
+	add player to {player::*}
+	
+on first join:
+	wait 1 tick
+	set player's flight mode to false
+
+on break:
+	if {mod.utilisation.%player%} is true:
+		cancel event
+		
+on place:
+	if {mod.utilisation.%player%} is true:
+		cancel event
+
+on join:
+    add player to {player::*}
+    stop
+
+command /§vanish:
+    trigger:
+        if {vanish::%player%} is not set:
+            set {vanish::%player%} to false
+        if {vanish::%player%} is false:
+            set {vanish::%player%} to true
+            while player is online:
+                if {vanish::%player%} is false:
+                    reveal player to {player::*}
+                    stop
+                hide player from {player::*}
+                wait 1 second 
+        if {vanish::%player%} is true:
+            set {vanish::%player%} to false  
+            stop
+
+on join:
+	if {mod.utilisation.%player%} is true:
+		set {mod.utilisation.%player%} to true
+		message "&7Outils de modération: &aON"
+		set {vanish::%player%} to false
+		execute player command "/§vanish"
+		set player's gamemode to adventure
+		clear player's inventory
+		set player's flight mode to true
+		set slot 7 of player's inventory to light green dye named "&6Vanish: &aON"
+		set slot 0 of player's inventory to wooden sword of unbreaking 3 named "&6Epée Knockback I"
+		set slot 1 of player's inventory to wooden sword of knockback 2 and unbreaking 3 named "&6Epée Knockback II"
+		set slot 2 of player's inventory to wooden sword of knockback 3 and unbreaking 3 named "&6Epée Knockback III"
+		set slot 3 of player's inventory to lime wool named "&6Fly: &aON"
+		set slot 6 of player's inventory to sugar named "&6Menu de Téléportation"
+		stop
+
+command /mod:
+	permission: MODERATOR
+	permission message: {@perm}
+	trigger:
+		if {vanish::%player%} is not set:
+			set {vanish::%player%} to false
+		if {mod.utilisation.%player%} is true:
+			set {mod.utilisation.%player%} to false
+			message "&7Outils de modération: &cOFF"
+			set {vanish::%player%} to true
+			execute player command "/§vanish"
+			set player's gamemode to adventure
+			set player's flight mode to false
+			clear player's inventory
+			teleport {_p} at {lobbybrain}
+			set {toucher.player.%{_p}%} to false
+			ReineRushJoin(player)
+			stop
+		else:
+			set {mod.utilisation.%player%} to true
+			message "&7Outils de modération: &aON"
+			set {vanish::%player%} to false
+			execute player command "/§vanish"
+			set player's gamemode to adventure
+			clear player's inventory
+			set player's flight mode to true
+			set slot 7 of player's inventory to light green dye named "&6Vanish: &aON"
+			set slot 0 of player's inventory to wooden sword of unbreaking 3 named "&6Epée Knockback I"
+			set slot 1 of player's inventory to wooden sword of knockback 2 and unbreaking 3 named "&6Epée Knockback II"
+			set slot 2 of player's inventory to wooden sword of knockback 3 and unbreaking 3 named "&6Epée Knockback III"
+			set slot 3 of player's inventory to lime wool named "&6Fly: &aON"
+			set slot 6 of player's inventory to sugar named "&6Menu de Téléportation"
+			stop
+
+on rightclick:
+	if player have permission "MODERATOR":
+		if name of tool is "&6Vanish: &cOFF":
+			set {vanish::%player%} to false
+			execute player command "/§vanish"
+			send "&6Vanish: &aON" to player
+			wait 1 tick
+			set slot 7 of player's inventory to light green dye named "&6Vanish: &aON"
+
+on rightclick:
+	if player have permission "MODERATOR":
+		if name of tool is "&6Vanish: &aON":
+			set {vanish::%player%} to true
+			execute player command "/§vanish"
+			send "&6Vanish: &cOFF" to player
+			wait 1 tick
+			set slot 7 of player's inventory to gray dye named "&6Vanish: &cOFF"
+
+on rightclick:
+	if player have permission "MODERATOR":
+		if name of tool is "&6Fly: &aON":
+			set player's flight mode to false
+			send "&6Fly: &cOFF" to player
+			wait 1 tick
+			set slot 3 of player's inventory to red wool named "&6Fly: &cOFF"
+			
+on rightclick:
+	if player have permission "MODERATOR":
+		if name of tool is "&6Fly: &cOFF":
+			set player's flight mode to true
+			send "&6Fly: &aON" to player
+			wait 1 tick
+			set slot 3 of player's inventory to lime wool named "&6Fly: &aON"
+
+on rightclick:
+	if player have permission "MODERATOR":
+		if name of tool is "&6Menu de Téléportation":
+			send ""
+			send "&6&nSe téléporter à un joueur:"
+			loop all players:
+				execute console command "/tellraw %player% ["""",{""text"":""&c➠ &6%loop-player% ""},{""text"":""&e[Téléportation]"",""clickEvent"":{""action"":""run_command"",""value"":""/tp %loop-player%""},""hoverEvent"":{""action"":""show_text"",""value"":""&fSe téléporter à %loop-player%""}}]"
+			send ""
